@@ -12,8 +12,12 @@
         {% csrf_token %}
         <h2 class="card-header">{{ message|safe }}</h2>
         <div class="card-body">
+            {% for index in list %}
+            <input type="hidden" name="rsl_list" value="{{ index }}">
+            {% endfor %}
             {% for item in data %}
             <div>
+            <input type="hidden" name="rsl_data" value="{{ item }}">
             <input type="checkbox" name="checks[]" value="{{ item }}">
             <lavel>{{ item }}</lavel>
             </div>
