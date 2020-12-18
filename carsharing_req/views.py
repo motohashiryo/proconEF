@@ -49,6 +49,8 @@ def set_session(request):
         print('ok')
     else:
         surveyMail(request, check_usage_obj)
+        saveUsage(request, check_usage_obj)
+
     return redirect(to='carsharing_req:index')
 
 
@@ -241,7 +243,7 @@ def checkUsage(user_id):
         usage_list = []
         for booking_id in usage:
             usage_list.append(booking_id['booking_id'])
-            booking = BookingModel.objects.filter(user_id=user_id, end_day__lte=d_now).exclude(id__in=usage_list).exclude(charge=-1).values().order_by('end_day', 'end_time').last()
+            booking = BookingModel.objects.filter(user_id=user_id, end_day__lte=d_now).exclude(id__in=usage_list).exclude(charge=-1).exclude(end_time__gte=t_now).values().order_by('end_day', 'end_time').last()
     print(booking)
     return booking
 
@@ -263,4 +265,13 @@ def surveyMail(request, booking):
     user = request.user  # ログインユーザーを取得する
     from_email = 'admin@gmail.com'  # 送信者
     user.email_user(subject, message, from_email)  # メールの送信
-    return ()
+    pass
+
+
+def saveUsage(request, booking):
+    booking_id = BookingModel.objects.get(id=booking['id'])
+    record = UsageModel(user_id=booking['user_id'], car_id=booking['car_id'], \
+        booking_id=booking_id, start_day=booking['start_day'], start_time=booking['start_time'], \
+        end_day=booking['end_day'], end_time=booking['end_time'], charge=booking['charge'])
+    record.save()
+    pass
